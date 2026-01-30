@@ -1,0 +1,32 @@
+# Heavily inspired by Nixpkgs.
+name: Prepare
+
+inputs:
+  pull-number:
+    description: 'The pull request number'
+    required: true
+  github-token:
+    description: 'GitHub token to use for API requests'
+    required: true
+
+outputs:
+  merged-sha:
+    value: ${{ steps.prepare.outputs.merged-sha }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare
+      id: prepare
+      uses: actions/github-script@v8
+      with:
+        github-token: ${{ inputs.github-token }}
+        retries: 10
+        retry-exempt-status-codes: 400,401,403,404
+        script: |
+          require('./prepare/main.js')({
+            github,
+            context,
+            core,
+            pullNumber: ${{ inputs.pull-number }}
+          });

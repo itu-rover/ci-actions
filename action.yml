@@ -1,0 +1,43 @@
+name: CI
+
+inputs:
+  pull-number:
+    description: 'The pull request number'
+    required: false
+  ci-app-id:
+    description: 'GitHub App ID for CI'
+    required: true
+  ci-private-key:
+    description: 'GitHub App private key for CI'
+    required: true
+
+outputs:
+  merged-sha:
+    value: ${{ steps.prepare.outputs.merged-sha }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout ci-actions
+      uses: actions/checkout@v6
+      with:
+        repository: itu-rover/ci-actions
+
+    - uses: actions/create-github-app-token@v2.2.1
+      id: app-token
+      with:
+        app-id: ${{ inputs.ci-app-id }}
+        private-key: ${{ inputs.ci-private-key }}
+        permission-administration: read
+        permission-contents: write
+        permission-issues: write
+        permission-members: read
+        permission-pull-requests: write
+
+    - name: Prepare
+      id: prepare
+      if: ${{ inputs.pull-number != '' }}
+      uses: ./prepare
+      with:
+        github-token: ${{ steps.app-token.outputs.token }}
+        pull-number: ${{ inputs.pull-number }}
