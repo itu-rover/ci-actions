@@ -1,0 +1,17 @@
+name: CI
+
+outputs:
+  mergedSha:
+    value: ${{ steps.prepare.outputs.mergedSha }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout ci-actions
+      uses: actions/checkout@v6
+      with:
+        repository: itu-rover/ci-actions
+
+    - name: Prepare
+      id: prepare
+      uses: ./prepare

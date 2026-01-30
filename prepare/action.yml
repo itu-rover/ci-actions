@@ -1,0 +1,22 @@
+# Heavily inspired by Nixpkgs.
+name: Prepare
+
+outputs:
+  mergedSha:
+    value: ${{ steps.prepare.outputs.mergedSha }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare
+      id: prepare
+      uses: actions/github-script@v8
+      with:
+        retries: 10
+        retry-exempt-status-codes: 400,401,403,404
+        script: |
+          require('./prepare/main.js')({
+            github,
+            context,
+            core,
+          });
